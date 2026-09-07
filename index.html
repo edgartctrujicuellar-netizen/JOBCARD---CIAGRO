@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -6,67 +7,155 @@
     <title>JOBCARD - Control de Reservas</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
+
 <body>
 
-    <!-- Encabezado Principal Corporativo -->
-    <header class="header-bar">
-        <div class="logo-container">
-            <h1>Control de Reservas JOBCARD</h1>
-        </div>
-        
-        <div class="login-container">
-            <div class="login-field">
-                <label for="usuarioSelect">Usuario:</label>
-                <select id="usuarioSelect">
-                    <option value="Edgar">Edgar</option>
-                    <option value="Ernestina">Ernestina</option>
-                </select>
-            </div>
+```
+<!-- ENCABEZADO -->
+<header class="header-bar">
 
-            <div class="login-field">
-                <label for="passwordInput">Contraseña:</label>
-                <input type="password" id="passwordInput" placeholder="Ingrese su clave">
-            </div>
+    <div class="logo-container">
+        <h1>Control de Reservas JOBCARD</h1>
+    </div>
 
-            <button id="loginBtn" class="btn-ingresar">Ingresar</button>
-        </div>
-    </header>
+    <!-- ACCESO -->
+    <div class="login-container">
 
-    <!-- Área de Contenido Principal -->
-    <main class="main-content">
-        <!-- Barra Superior de Herramientas / Búsqueda -->
-        <div class="toolbar">
-            <div class="search-container">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Buscar por cliente, modelo, técnico, TR4...">
-            </div>
+        <!-- Se muestra cuando NO hay sesión -->
+        <button id="loginOpenBtn" class="btn-ingresar">
+            Iniciar sesión
+        </button>
+
+        <!-- Se muestra cuando HAY sesión -->
+        <div id="userSession" class="user-session" style="display: none;">
+            <span id="loggedUser"></span>
+            <button id="logoutBtn" class="btn-cerrar">
+                Cerrar sesión
+            </button>
         </div>
 
-        <!-- Tabla Estilizada de Datos -->
-        <div class="table-wrapper">
-            <table class="jobcard-table">
-                <thead>
-                    <tr>
-                        <th>ID Reserva</th>
-                        <th>TR4</th>
-                        <th>PIN / SN</th>
-                        <th>Modelo</th>
-                        <th>Cliente</th>
-                        <th>Fecha Creación</th>
-                        <th>Creado Por</th>
-                        <th>Técnico</th>
-                        <th>Estado</th>
-                        <th>Estado Unidad</th>
-                        <th>Actividades</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- Registros generados mediante JavaScript -->
-                </tbody>
-            </table>
-        </div>
-    </main>
+    </div>
 
-    <script src="app.js"></script>
+</header>
+
+
+<!-- CONTENIDO PRINCIPAL -->
+<main class="main-content">
+
+    <!-- BÚSQUEDA -->
+    <div class="toolbar">
+
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Buscar por cliente, modelo, técnico, TR4..."
+            >
+        </div>
+
+    </div>
+
+
+    <!-- TABLA -->
+    <div class="table-wrapper">
+
+        <table class="jobcard-table">
+
+            <thead>
+                <tr>
+                    <th>ID Reserva</th>
+                    <th>TR4</th>
+                    <th>PIN / SN</th>
+                    <th>Modelo</th>
+                    <th>Cliente</th>
+                    <th>Fecha Creación</th>
+                    <th>Creado Por</th>
+                    <th>Técnico</th>
+                    <th>Estado</th>
+                    <th>Estado Unidad</th>
+                    <th>Actividades</th>
+                </tr>
+            </thead>
+
+            <tbody id="tableBody">
+                <!-- Los registros se generan mediante JavaScript -->
+            </tbody>
+
+        </table>
+
+    </div>
+
+</main>
+
+
+<!-- ========================= -->
+<!-- MODAL DE INICIO DE SESIÓN -->
+<!-- ========================= -->
+
+<div id="loginModal" class="modal">
+
+    <div class="modal-content">
+
+        <h2>Iniciar sesión</h2>
+
+        <label for="usuarioSelect">
+            Usuario
+        </label>
+
+        <select id="usuarioSelect">
+
+            <option value="Edgar">
+                Edgar
+            </option>
+
+            <option value="Ernestina">
+                Ernestina
+            </option>
+
+        </select>
+
+
+        <label for="passwordInput">
+            Contraseña
+        </label>
+
+        <input
+            type="password"
+            id="passwordInput"
+            placeholder="Ingrese su contraseña"
+        >
+
+
+        <div id="loginError" class="login-error"></div>
+
+
+        <div class="modal-buttons">
+
+            <button
+                id="cancelLoginBtn"
+                class="btn-secondary"
+            >
+                Cancelar
+            </button>
+
+            <button
+                id="loginBtn"
+                class="btn-primary"
+            >
+                Ingresar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="app.js"></script>
+```
+
 </body>
 </html>
