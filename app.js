@@ -4,7 +4,35 @@ let currentPass = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatos();
+
+    // Event listener para el botón o formulario de login
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', iniciarSesion);
+    }
 });
+
+function iniciarSesion() {
+    const userSelect = document.getElementById('usuarioSelect');
+    const passInput = document.getElementById('passwordInput');
+
+    if (!userSelect || !passInput) {
+        alert("No se encontraron los campos de usuario o contraseña en el HTML.");
+        return;
+    }
+
+    currentUser = userSelect.value;
+    currentPass = passInput.value;
+
+    if (!currentPass) {
+        alert("Por favor ingresa tu contraseña.");
+        return;
+    }
+
+    // Volvemos a renderizar la tabla activando la edición según el usuario
+    renderTabla(rawData);
+    alert(`Sesión iniciada como ${currentUser}. Ya puedes editar la tabla.`);
+}
 
 async function cargarDatos() {
     try {
@@ -18,6 +46,8 @@ async function cargarDatos() {
 
 function renderTabla(data) {
     const tbody = document.getElementById('tableBody');
+    if (!tbody) return;
+    
     tbody.innerHTML = '';
 
     const campos = [
@@ -34,12 +64,12 @@ function renderTabla(data) {
             const td = document.createElement('td');
             td.textContent = row[key] || '';
             
-            // Reglas de edición según el usuario que inició sesión
+            // Reglas de edición según el usuario activo
             if (currentUser) {
                 let esEditable = false;
 
                 if (currentUser === 'Edgar') {
-                    esEditable = true; // Edgar tiene acceso total
+                    esEditable = true; // Edgar edita todo
                 } else if (currentUser === 'Ernestina') {
                     if (key === 'tr4' || key === 'estado') {
                         esEditable = true; // Ernestina solo edita TR4 y Estado
@@ -53,8 +83,10 @@ function renderTabla(data) {
                     td.addEventListener('blur', () => guardarCelda(row.id, key, td.textContent.trim()));
                 } else {
                     td.contentEditable = "false";
-                    td.style.background = "#f1f5f9"; // Deshabilitado / Fondo gris
+                    td.style.background = "#f1f5f9";
                 }
+            } else {
+                td.contentEditable = "false";
             }
 
             tr.appendChild(td);
@@ -65,6 +97,11 @@ function renderTabla(data) {
 }
 
 async function guardarCelda(rowId, campo, valor) {
+    if (!currentUser || !currentPass) {
+        alert('Debes ingresar tu contraseña antes de editar.');
+        return;
+    }
+
     try {
         const res = await fetch('/api/guardar-celda', {
             method: 'POST',
