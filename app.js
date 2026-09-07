@@ -21,6 +21,7 @@ const COL_MAP = [
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatos();
     inicializarLogin();
+    inicializarBuscadorGlobal();
 });
 
 async function cargarDatos() {
@@ -37,18 +38,17 @@ async function cargarDatos() {
 
 function construirEncabezadosConFiltros() {
     const theadRow = document.querySelector('#dataTable thead tr');
+    if (!theadRow) return;
     theadRow.innerHTML = '';
 
     COL_MAP.forEach(col => {
         const th = document.createElement('th');
         th.textContent = col.label;
 
-        // Botón de flecha estilo Excel
         const btnFilter = document.createElement('button');
         btnFilter.className = 'th-filter-btn';
         btnFilter.innerHTML = '▼';
         
-        // Contenedor del menú desplegable
         const menu = document.createElement('div');
         menu.className = 'excel-filter-menu';
 
@@ -77,66 +77,136 @@ function poblarOpcionesFiltro(key, menuContainer) {
 
     const valoresUnicos = [...new Set(rawData.map(item => item[key] ? String(item[key]).trim() : '(Vacíos)'))].sort();
 
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'filter-actions';
+    // Buscador interno del menú
+    const inputSearch = document.createElement('input');
+    inputSearch.type = 'text';
+    inputSearch.placeholder = 'Buscar en lista...';
+    inputSearch.className = 'excel-filter-search';
+    inputSearch.onclick = (e) => e.stopPropagation();
     
-    const btnTodos = document.createElement('button');
-    btnTodos.textContent = 'Todos';
-    btnTodos.onclick = (e) => {
-        e.stopPropagation();
-        delete activeFilters[key];
-        aplicarFiltros();
-        menuContainer.style.display = 'none';
-    };
+    menuContainer.appendChild(inputSearch);
 
-    actionsDiv.appendChild(btnTodos);
-    menuContainer.appendChild(actionsDiv);
+    const listContainer = document.createElement('div');
+    listContainer.className = 'excel-filter-list';
 
+    // Opción "Seleccionar Todo"
+    const labelAll = document.createElement('label');
+    labelAll.className = 'select-all-label';
+    labelAll.onclick = (e) => e.stopPropagation();
+
+    const chkAll = document.createElement('input');
+    chkAll.type = 'checkbox';
+    
+    const estaFiltrado = activeFilters[key] && activeFilters[key].length > 0;
+    chkAll.checked = !estaFiltrado || activeFilters[key].length === valoresUnicos.length;
+
+    labelAll.appendChild(chkAll);
+    labelAll.appendChild(document.createTextNode(' (Seleccionar Todo)'));
+    listContainer.appendChild(labelAll);
+
+    // Lista de valores
+    const checkBoxes = [];
     valoresUnicos.forEach(val => {
         const label = document.createElement('label');
+        label.className = 'filter-item-label';
         label.onclick = (e) => e.stopPropagation();
 
         const chk = document.createElement('input');
         chk.type = 'checkbox';
         chk.value = val;
 
-        if (activeFilters[key] && activeFilters[key].includes(val)) {
+        if (!estaFiltrado || (activeFilters[key] && activeFilters[key].includes(val))) {
             chk.checked = true;
         }
 
         chk.addEventListener('change', () => {
-            if (!activeFilters[key]) activeFilters[key] = [];
-            
-            if (chk.checked) {
-                activeFilters[key].push(val);
-            } else {
-                activeFilters[key] = activeFilters[key].filter(v => v !== val);
-                if (activeFilters[key].length === 0) delete activeFilters[key];
-            }
-            aplicarFiltros();
+            asignarFiltroPorCheckboxes(key, valoresUnicos, checkBoxes, chkAll);
         });
 
+        checkBoxes.push({ chk, val, label });
         label.appendChild(chk);
         label.appendChild(document.createTextNode(` ${val}`));
-        menuContainer.appendChild(label);
+        listContainer.appendChild(label);
+    });
+
+    // Evento Seleccionar Todo
+    chkAll.addEventListener('change', () => {
+        checkBoxes.forEach(item => {
+            if (item.label.style.display !== 'none') {
+                item.chk.checked = chkAll.checked;
+            }
+        });
+        asignarFiltroPorCheckboxes(key, valoresUnicos, checkBoxes, chkAll);
+    });
+
+    // Evento de búsqueda rápida dentro del menú
+    inputSearch.addEventListener('input', () => {
+        const term = inputSearch.value.toLowerCase();
+        checkBoxes.forEach(item => {
+            if (item.val.toLowerCase().includes(term)) {
+                item.label.style.display = 'block';
+            } else {
+                item.label.style.display = 'none';
+            }
+        });
+    });
+
+    menuContainer.appendChild(listContainer);
+}
+
+function asignarFiltroPorCheckboxes(key, todosLosValores, checkBoxes, chkAll) {
+    const marcados = checkBoxes.filter(i => i.chk.checked).map(i => i.val);
+    
+    if (marcados.length === todosLosValores.length || marcados.length === 0) {
+        delete activeFilters[key];
+        chkAll.checked = true;
+    } else {
+        activeFilters[key] = marcados;
+        chkAll.checked = false;
+    }
+    aplicarFiltros();
+}
+
+function inicializarBuscadorGlobal() {
+    const inputBuscar = document.querySelector('input[placeholder="Buscar..."]') || document.querySelector('input[type="text"]');
+    if (!inputBuscar) return;
+
+    inputBuscar.addEventListener('input', () => {
+        aplicarFiltros();
     });
 }
 
 function aplicarFiltros() {
+    const inputBuscar = document.querySelector('input[placeholder="Buscar..."]') || document.querySelector('input[type="text"]');
+    const busquedaGlobal = inputBuscar ? inputBuscar.value.toLowerCase().trim() : '';
+
     filteredData = rawData.filter(row => {
+        // 1. Filtros por columna estilo Excel
         for (let key in activeFilters) {
             const rowVal = row[key] ? String(row[key]).trim() : '(Vacíos)';
             if (activeFilters[key].length > 0 && !activeFilters[key].includes(rowVal)) {
                 return false;
             }
         }
+
+        // 2. Buscador global (busca coincidencias en cualquier columna)
+        if (busquedaGlobal) {
+            const coincideEnAlgunaColumna = COL_MAP.some(col => {
+                const val = row[col.key] ? String(row[col.key]).toLowerCase() : '';
+                return val.includes(busquedaGlobal);
+            });
+            if (!coincideEnAlgunaColumna) return false;
+        }
+
         return true;
     });
+
     renderTabla(filteredData);
 }
 
 function renderTabla(data) {
     const tbody = document.getElementById('tableBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     data.forEach((row) => {
@@ -200,24 +270,28 @@ function inicializarLogin() {
     const editorPanel = document.getElementById('editorPanel');
     const lblUsuario = document.getElementById('lblUsuario');
 
-    btnLogin.addEventListener('click', () => { loginModal.style.display = 'flex'; txtUser.focus(); });
-    btnCancelLogin.addEventListener('click', () => { loginModal.style.display = 'none'; });
+    if (btnLogin) btnLogin.addEventListener('click', () => { loginModal.style.display = 'flex'; txtUser.focus(); });
+    if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => { loginModal.style.display = 'none'; });
     
-    btnConfirmLogin.addEventListener('click', () => {
-        currentUser = txtUser.value.trim();
-        currentPass = txtPass.value;
-        loginModal.style.display = 'none';
-        editorPanel.style.display = 'flex';
-        lblUsuario.textContent = currentUser;
-        btnLogin.style.display = 'none';
-        renderTabla(filteredData);
-    });
+    if (btnConfirmLogin) {
+        btnConfirmLogin.addEventListener('click', () => {
+            currentUser = txtUser.value.trim();
+            currentPass = txtPass.value;
+            loginModal.style.display = 'none';
+            editorPanel.style.display = 'flex';
+            lblUsuario.textContent = currentUser;
+            btnLogin.style.display = 'none';
+            renderTabla(filteredData);
+        });
+    }
 
-    btnLogout.addEventListener('click', () => {
-        currentUser = null;
-        currentPass = null;
-        editorPanel.style.display = 'none';
-        btnLogin.style.display = 'inline-block';
-        renderTabla(filteredData);
-    });
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            currentUser = null;
+            currentPass = null;
+            editorPanel.style.display = 'none';
+            btnLogin.style.display = 'inline-block';
+            renderTabla(filteredData);
+        });
+    }
 }
