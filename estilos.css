@@ -31,7 +31,7 @@ header h1 {
     padding: 20px 24px;
 }
 
-/* Panel de Búsqueda y Filtros */
+/* Panel de Búsqueda y Filtros superior */
 .search-panel {
     background: #ffffff;
     padding: 16px;
@@ -79,13 +79,15 @@ table {
     white-space: nowrap;
 }
 
+/* Encabezados de Tabla con espacio para el botón de filtro */
 th {
     background-color: #002060;
     color: #ffffff;
-    padding: 10px 14px;
+    padding: 10px 25px 10px 14px;
     font-weight: 600;
     font-size: 12px;
     border-right: 1px solid #001848;
+    position: relative;
 }
 
 td {
@@ -154,17 +156,9 @@ tr:nth-child(even) {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
-
 }
-
-
 
 /* Botones de filtro estilo Excel en los encabezados */
-th {
-    position: relative;
-    padding-right: 25px !important;
-}
-
 .th-filter-btn {
     position: absolute;
     right: 5px;
@@ -192,9 +186,8 @@ th {
     border: 1px solid #cccccc;
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     z-index: 1000;
-    width: 200px;
-    max-height: 250px;
-    overflow-y: auto;
+    width: 220px;
+    max-height: 280px;
     display: none;
     padding: 8px;
     border-radius: 4px;
@@ -203,27 +196,41 @@ th {
     text-align: left;
 }
 
-.excel-filter-menu label {
+/* Campo de búsqueda interno en el menú flotante */
+.excel-filter-search {
+    width: 100%;
+    padding: 5px 8px;
+    margin-bottom: 6px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 11px;
+    box-sizing: border-box;
+}
+
+.excel-filter-list {
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.excel-filter-list label {
     display: block;
     padding: 3px 0;
     font-size: 12px;
     cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.excel-filter-menu input[type="checkbox"] {
+.excel-filter-list input[type="checkbox"] {
     margin-right: 6px;
 }
 
-.filter-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 6px;
-    padding-bottom: 6px;
+.select-all-label {
+    font-weight: bold;
     border-bottom: 1px solid #eee;
-}
-
-.filter-actions button {
-    font-size: 11px;
-    padding: 2px 6px;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+    display: block;
     cursor: pointer;
 }
