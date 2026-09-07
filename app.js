@@ -21,7 +21,7 @@ const COL_MAP = [
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatos();
     inicializarLogin();
-    inicializarBuscadorGlobal();
+    inicializarBuscadoresYSelects();
 });
 
 async function cargarDatos() {
@@ -29,11 +29,43 @@ async function cargarDatos() {
         const res = await fetch('/api/reservas');
         rawData = await res.json();
         filteredData = [...rawData];
+        
+        poblarSelectsSuperiores();
         construirEncabezadosConFiltros();
         renderTabla(filteredData);
     } catch (err) {
         console.error("Error al cargar datos desde Neon:", err);
     }
+}
+
+// Puebla las listas desplegables de la parte superior con los datos reales de la BD
+function poblarSelectsSuperiores() {
+    const selects = document.querySelectorAll('.filters select');
+    if (selects.length === 0) return;
+
+    // Supuesto de asignación por orden de selects en HTML: 
+    // Select 0 -> Estado, Select 1 -> Estado Unidad, Select 2 -> Técnico
+    const mapping = [
+        { select: selects[0], key: 'estado', defaultLabel: 'Todos los Estados' },
+        { select: selects[1], key: 'estado_unidad', defaultLabel: 'Todos los Estados de Unidad' },
+        { select: selects[2], key: 'tecnico', defaultLabel: 'Todos los Técnicos' }
+    ];
+
+    mapping.forEach(item => {
+        if (!item.select) return;
+        
+        const valoresUnicos = [...new Set(rawData.map(row => row[item.key] ? String(row[item.key]).trim() : '').filter(Boolean))].sort();
+        
+        item.select.innerHTML = `<option value="">${item.defaultLabel}</option>`;
+        valoresUnicos.forEach(val => {
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = val;
+            item.select.appendChild(opt);
+        });
+
+        item.select.onchange = () => aplicarFiltros();
+    });
 }
 
 function construirEncabezadosConFiltros() {
@@ -77,19 +109,17 @@ function poblarOpcionesFiltro(key, menuContainer) {
 
     const valoresUnicos = [...new Set(rawData.map(item => item[key] ? String(item[key]).trim() : '(Vacíos)'))].sort();
 
-    // Buscador interno del menú
     const inputSearch = document.createElement('input');
     inputSearch.type = 'text';
-    inputSearch.placeholder = 'Buscar en lista...';
+    inputSearch.placeholder = 'Buscar...';
     inputSearch.className = 'excel-filter-search';
     inputSearch.onclick = (e) => e.stopPropagation();
-    
     menuContainer.appendChild(inputSearch);
 
     const listContainer = document.createElement('div');
     listContainer.className = 'excel-filter-list';
 
-    // Opción "Seleccionar Todo"
+    // Checkbox "Seleccionar Todo"
     const labelAll = document.createElement('label');
     labelAll.className = 'select-all-label';
     labelAll.onclick = (e) => e.stopPropagation();
@@ -104,11 +134,9 @@ function poblarOpcionesFiltro(key, menuContainer) {
     labelAll.appendChild(document.createTextNode(' (Seleccionar Todo)'));
     listContainer.appendChild(labelAll);
 
-    // Lista de valores
     const checkBoxes = [];
     valoresUnicos.forEach(val => {
         const label = document.createElement('label');
-        label.className = 'filter-item-label';
         label.onclick = (e) => e.stopPropagation();
 
         const chk = document.createElement('input');
@@ -129,7 +157,6 @@ function poblarOpcionesFiltro(key, menuContainer) {
         listContainer.appendChild(label);
     });
 
-    // Evento Seleccionar Todo
     chkAll.addEventListener('change', () => {
         checkBoxes.forEach(item => {
             if (item.label.style.display !== 'none') {
@@ -139,7 +166,6 @@ function poblarOpcionesFiltro(key, menuContainer) {
         asignarFiltroPorCheckboxes(key, valoresUnicos, checkBoxes, chkAll);
     });
 
-    // Evento de búsqueda rápida dentro del menú
     inputSearch.addEventListener('input', () => {
         const term = inputSearch.value.toLowerCase();
         checkBoxes.forEach(item => {
@@ -167,21 +193,29 @@ function asignarFiltroPorCheckboxes(key, todosLosValores, checkBoxes, chkAll) {
     aplicarFiltros();
 }
 
-function inicializarBuscadorGlobal() {
-    const inputBuscar = document.querySelector('input[placeholder="Buscar..."]') || document.querySelector('input[type="text"]');
-    if (!inputBuscar) return;
-
-    inputBuscar.addEventListener('input', () => {
-        aplicarFiltros();
-    });
+function inicializarBuscadoresYSelects() {
+    const inputBuscar = document.querySelector('#searchInput') || document.querySelector('input[placeholder="Buscar..."]');
+    if (inputBuscar) {
+        inputBuscar.addEventListener('input', () => aplicarFiltros());
+    }
 }
 
 function aplicarFiltros() {
-    const inputBuscar = document.querySelector('input[placeholder="Buscar..."]') || document.querySelector('input[type="text"]');
+    const inputBuscar = document.querySelector('#searchInput') || document.querySelector('input[placeholder="Buscar..."]');
     const busquedaGlobal = inputBuscar ? inputBuscar.value.toLowerCase().trim() : '';
 
+    const selects = document.querySelectorAll('.filters select');
+    const valEstado = selects[0] ? selects[0].value : '';
+    const valEstadoUnidad = selects[1] ? selects[1].value : '';
+    const valTecnico = selects[2] ? selects[2].value : '';
+
     filteredData = rawData.filter(row => {
-        // 1. Filtros por columna estilo Excel
+        // 1. Filtros Selects Superiores
+        if (valEstado && (row.estado || '').trim() !== valEstado) return false;
+        if (valEstadoUnidad && (row.estado_unidad || '').trim() !== valEstadoUnidad) return false;
+        if (valTecnico && (row.tecnico || '').trim() !== valTecnico) return false;
+
+        // 2. Filtros por columna estilo Excel
         for (let key in activeFilters) {
             const rowVal = row[key] ? String(row[key]).trim() : '(Vacíos)';
             if (activeFilters[key].length > 0 && !activeFilters[key].includes(rowVal)) {
@@ -189,7 +223,7 @@ function aplicarFiltros() {
             }
         }
 
-        // 2. Buscador global (busca coincidencias en cualquier columna)
+        // 3. Buscador Global (busca coincidencias en cualquier columna)
         if (busquedaGlobal) {
             const coincideEnAlgunaColumna = COL_MAP.some(col => {
                 const val = row[col.key] ? String(row[col.key]).toLowerCase() : '';
