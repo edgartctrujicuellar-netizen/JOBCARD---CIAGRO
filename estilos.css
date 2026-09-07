@@ -1,159 +1,433 @@
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+  Roboto, Helvetica, Arial, sans-serif;
+  }
 
 body {
-    background-color: #f4f6f9;
-    color: #333333;
+background-color: #f4f6f9;
+color: #333;
+font-size: 13px;
 }
 
-/* Encabezado Principal */
+/* ========================= */
+/* ENCABEZADO */
+/* ========================= */
+
 .header-bar {
-    background-color: #002060;
-    color: #ffffff;
-    padding: 10px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+background-color: #002060;
+color: #ffffff;
+padding: 12px 24px;
+
+```
+display: flex;
+justify-content: space-between;
+align-items: center;
+```
+
 }
 
-.logo-container h1 {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+.header-bar h1 {
+font-size: 16px;
+color: #ffffff;
+font-weight: 700;
 }
+
+/* ========================= */
+/* LOGIN */
+/* ========================= */
 
 .login-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+display: flex;
+align-items: center;
 }
 
-.login-field {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-}
-
-.login-field select,
-.login-field input {
-    padding: 5px 10px;
-    border: 1px solid #001040;
-    border-radius: 4px;
-    font-size: 13px;
-    outline: none;
-}
-
-.login-field select {
-    background-color: #ffffff;
-    color: #002060;
-    font-weight: 600;
-}
+/* BOTÓN INICIAR SESIÓN */
 
 .btn-ingresar {
-    background-color: #0056b3;
-    color: #ffffff;
-    border: none;
-    padding: 6px 16px;
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+background-color: #ffffff;
+color: #002060;
+
+```
+border: none;
+border-radius: 4px;
+
+padding: 8px 16px;
+
+font-size: 13px;
+font-weight: 600;
+
+cursor: pointer;
+
+transition: 0.2s;
+```
+
 }
 
 .btn-ingresar:hover {
-    background-color: #003d80;
+background-color: #e8edf7;
 }
 
-/* Contenedor Principal */
+/* SESIÓN ACTIVA */
+
+.user-session {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+#loggedUser {
+font-weight: 600;
+color: #ffffff;
+}
+
+/* CERRAR SESIÓN */
+
+.btn-cerrar {
+background-color: #dc2626;
+color: #ffffff;
+
+```
+border: none;
+border-radius: 4px;
+
+padding: 7px 12px;
+
+font-size: 12px;
+font-weight: 600;
+
+cursor: pointer;
+```
+
+}
+
+.btn-cerrar:hover {
+background-color: #b91c1c;
+}
+
+/* ========================= */
+/* CONTENIDO */
+/* ========================= */
+
 .main-content {
-    padding: 16px 24px;
+padding: 20px 24px;
 }
 
-/* Barra de Herramientas y Búsqueda */
+/* ========================= */
+/* BARRA DE BÚSQUEDA */
+/* ========================= */
+
 .toolbar {
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: flex-start;
+background: #ffffff;
+
+```
+padding: 16px;
+
+border-radius: 4px;
+border: 1px solid #e2e8f0;
+
+margin-bottom: 16px;
+```
+
 }
 
 .search-container {
-    position: relative;
-    width: 100%;
-    max-width: 420px;
+display: flex;
+align-items: center;
+
+```
+width: 100%;
+```
+
 }
 
 .search-icon {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 14px;
-    color: #888888;
+margin-right: 8px;
+font-size: 16px;
 }
 
-.search-container input {
-    width: 100%;
-    padding: 7px 12px 7px 32px;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
+#searchInput {
+flex: 1;
+
+```
+padding: 9px 12px;
+
+font-size: 13px;
+
+border: 1px solid #cccccc;
+border-radius: 4px;
+
+outline: none;
+```
+
 }
 
-.search-container input:focus {
-    border-color: #002060;
+#searchInput:focus {
+border-color: #002060;
 }
 
-/* Estilos de Tabla */
+/* ========================= */
+/* TABLA */
+/* ========================= */
+
 .table-wrapper {
-    background: #ffffff;
-    border-radius: 4px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    overflow-x: auto;
+background: #ffffff;
+
+```
+border-radius: 4px;
+border: 1px solid #dcdfe6;
+
+overflow-x: auto;
+
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+```
+
 }
 
 .jobcard-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    text-align: left;
+width: 100%;
+
+```
+border-collapse: collapse;
+
+text-align: left;
+
+white-space: nowrap;
+```
+
 }
 
 .jobcard-table th {
-    background-color: #002060;
-    color: #ffffff;
-    font-weight: 600;
-    padding: 10px 12px;
-    border: 1px solid #001540;
-    white-space: nowrap;
+background-color: #002060;
+
+```
+color: #ffffff;
+
+padding: 10px 14px;
+
+font-weight: 600;
+font-size: 12px;
+
+border-right: 1px solid #001848;
+```
+
 }
 
 .jobcard-table td {
-    padding: 8px 12px;
-    border: 1px solid #e2e8f0;
-    white-space: nowrap;
+padding: 10px 14px;
+
+```
+border-bottom: 1px solid #eef2f5;
+
+color: #2c3e50;
+
+font-size: 12px;
+```
+
 }
 
-.jobcard-table tr:hover {
-    background-color: #f8fafc;
+.jobcard-table tr:nth-child(even) {
+background-color: #f8fafc;
 }
 
-/* Estilos para Celdas Editables */
-td[contenteditable="true"] {
-    background-color: #ffffff !important;
-    border: 1px solid #0056b3 !important;
-    outline: none;
+/* ========================= */
+/* MODAL LOGIN */
+/* ========================= */
+
+.modal {
+display: none;
+
+```
+position: fixed;
+
+top: 0;
+left: 0;
+
+width: 100%;
+height: 100%;
+
+background: rgba(0, 0, 0, 0.55);
+
+justify-content: center;
+align-items: center;
+
+z-index: 9999;
+```
+
 }
 
-td[contenteditable="false"] {
-    background-color: #f8fafc;
-    color: #444444;
+/* VENTANA */
+
+.modal-content {
+background: #ffffff;
+
+```
+padding: 25px;
+
+border-radius: 8px;
+
+width: 320px;
+
+display: flex;
+flex-direction: column;
+
+gap: 10px;
+
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+```
+
+}
+
+.modal-content h2 {
+color: #002060;
+
+```
+font-size: 19px;
+
+margin-bottom: 8px;
+```
+
+}
+
+.modal-content label {
+font-size: 12px;
+
+```
+font-weight: 600;
+
+color: #334155;
+```
+
+}
+
+/* SELECT E INPUT */
+
+.modal-content select,
+.modal-content input {
+width: 100%;
+
+```
+padding: 9px 10px;
+
+border: 1px solid #cbd5e1;
+
+border-radius: 4px;
+
+font-size: 13px;
+
+outline: none;
+
+background-color: #ffffff;
+```
+
+}
+
+.modal-content select:focus,
+.modal-content input:focus {
+border-color: #002060;
+}
+
+/* MENSAJE DE ERROR */
+
+.login-error {
+min-height: 18px;
+
+```
+color: #dc2626;
+
+font-size: 12px;
+
+font-weight: 600;
+```
+
+}
+
+/* BOTONES DEL MODAL */
+
+.modal-buttons {
+display: flex;
+
+```
+justify-content: flex-end;
+
+gap: 8px;
+
+margin-top: 5px;
+```
+
+}
+
+/* BOTÓN PRINCIPAL */
+
+.btn-primary {
+background-color: #002060;
+
+```
+color: #ffffff;
+
+border: none;
+
+border-radius: 4px;
+
+padding: 8px 14px;
+
+font-size: 12px;
+
+font-weight: 600;
+
+cursor: pointer;
+```
+
+}
+
+.btn-primary:hover {
+background-color: #001848;
+}
+
+/* BOTÓN CANCELAR */
+
+.btn-secondary {
+background-color: #64748b;
+
+```
+color: #ffffff;
+
+border: none;
+
+border-radius: 4px;
+
+padding: 8px 14px;
+
+font-size: 12px;
+
+font-weight: 600;
+
+cursor: pointer;
+```
+
+}
+
+.btn-secondary:hover {
+background-color: #475569;
+}
+
+/* ========================= */
+/* CELDAS EDITABLES */
+/* ========================= */
+
+.jobcard-table td[contenteditable="true"] {
+background-color: #ffffff !important;
+
+```
+border: 1px solid #002060;
+
+cursor: text;
+```
+
+}
+
+.jobcard-table td[contenteditable="false"] {
+background-color: #f1f5f9;
 }
