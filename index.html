@@ -3,97 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Reservas y Actividades</title>
+    <title>JOBCARD - Control de Reservas</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
+
     <header>
-        <div>
-            <h1>Control de Reservas y Actividades</h1>
-        </div>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <p style="color: #ffffff; font-size: 12px; margin: 0;">Buscador de estado de unidades en tiempo real</p>
-            <button id="btnLogin" class="btn-auth">Ingresar como Editor</button>
+        <h1>Control de Reservas JOBCARD</h1>
+        
+        <!-- Panel de inicio de sesión -->
+        <div class="login-panel">
+            <label for="usuarioSelect">Usuario:</label>
+            <select id="usuarioSelect">
+                <option value="Edgar">Edgar</option>
+                <option value="Ernestina">Ernestina</option>
+            </select>
+
+            <label for="passwordInput">Contraseña:</label>
+            <input type="password" id="passwordInput" placeholder="Ingrese su clave">
+
+            <button id="loginBtn">Ingresar</button>
         </div>
     </header>
 
-    <div class="container">
-        <!-- Panel de control de edición -->
-        <div id="editorPanel" class="editor-bar" style="display: none;">
-            <span>Modo Editor Activo: <strong id="lblUsuario"></strong></span>
-            <div>
-                <button id="btnAddRow" class="btn-action">+ Agregar Fila</button>
-                <button id="btnSave" class="btn-primary">Guardar Cambios en Excel</button>
-                <button id="btnLogout" class="btn-secondary">Cerrar Sesión</button>
-            </div>
-        </div>
-
-        <!-- Panel de Búsqueda y Filtros Ajustados -->
-        <div class="search-panel">
-            <div style="display: flex; gap: 8px; flex: 1; min-width: 320px;">
-                <select id="searchField" style="width: 170px;">
-                    <option value="ID de la reserva">ID de la reserva</option>
-                    <option value="TR4">TR4</option>
-                    <option value="PIN/SN">PIN/SN</option>
-                    <option value="CLIENTE">Nombre del cliente</option>
-                    <option value="Modelo">Modelo</option>
-                </select>
-                <input type="text" id="searchInput" placeholder="Buscar..." style="flex: 1;">
-            </div>
-
-            <div class="filters">
-                <select id="filterEstado">
-                    <option value="">Todos los Estados</option>
-                </select>
-                <select id="filterEstadoUnidad">
-                    <option value="">Estado de la Unidad</option>
-                </select>
-                <select id="filterTecnico">
-                    <option value="">Todos los Técnicos</option>
-                </select>
-            </div>
-        </div>
-
+    <main>
         <div class="table-container">
-            <table id="dataTable">
+            <table>
                 <thead>
                     <tr>
-                        <th>ID RESERVA</th>
+                        <th>ID Reserva</th>
                         <th>TR4</th>
                         <th>PIN / SN</th>
-                        <th>MODELO</th>
-                        <th>CLIENTE</th>
-                        <th>FECHA CREACIÓN</th>
-                        <th>CREADO POR</th>
-                        <th>TÉCNICO</th>
-                        <th>ESTADO</th>
-                        <th>ESTADO UNIDAD</th>
-                        <th>ACTIVIDADES</th>
-                        <th class="col-acciones" style="display: none;">ACCIONES</th>
+                        <th>Modelo</th>
+                        <th>Cliente</th>
+                        <th>Fecha Creación</th>
+                        <th>Creado Por</th>
+                        <th>Técnico</th>
+                        <th>Estado</th>
+                        <th>Estado Unidad</th>
+                        <th>Actividades</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr>
-                        <td colspan="12" class="loading">Cargando datos...</td>
-                    </tr>
+                    <!-- Los datos se cargarán dinámicamente desde app.js -->
                 </tbody>
             </table>
         </div>
-    </div>
-
-    <!-- Modal de Inicio de Sesión -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <h3>Acceso Restringido</h3>
-            <p>Ingrese sus credenciales para editar los datos</p>
-            <input type="text" id="txtUser" placeholder="Usuario">
-            <input type="password" id="txtPass" placeholder="Contraseña">
-            <div class="modal-buttons">
-                <button id="btnConfirmLogin" class="btn-primary">Ingresar</button>
-                <button id="btnCancelLogin" class="btn-secondary">Cancelar</button>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <script src="app.js"></script>
 </body>
