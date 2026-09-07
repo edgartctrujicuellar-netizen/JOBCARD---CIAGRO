@@ -4,12 +4,29 @@ let currentPass = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatos();
+    setupEvents();
+});
 
+function setupEvents() {
     const loginBtn = document.getElementById('loginBtn');
+    const searchInput = document.getElementById('searchInput');
+
     if (loginBtn) {
         loginBtn.addEventListener('click', iniciarSesion);
     }
-});
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const filtered = rawData.filter(row => {
+                return Object.values(row).some(val => 
+                    String(val || '').toLowerCase().includes(query)
+                );
+            });
+            renderTabla(filtered);
+        });
+    }
+}
 
 function iniciarSesion() {
     const userSelect = document.getElementById('usuarioSelect');
@@ -25,8 +42,18 @@ function iniciarSesion() {
         return;
     }
 
-    renderTabla(rawData);
-    alert(`Sesión iniciada como ${currentUser}. Celdas editables activadas.`);
+    // Aplica el filtro si había texto en la barra al iniciar sesión
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    if (query) {
+        const filtered = rawData.filter(row => 
+            Object.values(row).some(val => String(val || '').toLowerCase().includes(query))
+        );
+        renderTabla(filtered);
+    } else {
+        renderTabla(rawData);
+    }
+
+    alert(`Sesión iniciada correctamente como ${currentUser}. Celdas habilitadas.`);
 }
 
 async function cargarDatos() {
