@@ -8,25 +8,25 @@
 </head>
 <body>
 
-    <header>
-        <h1>Control de Reservas JOBCARD</h1>
-        
-        <!-- Panel de inicio de sesión -->
-        <div class="login-panel">
-            <label for="usuarioSelect">Usuario:</label>
-            <select id="usuarioSelect">
-                <option value="Edgar">Edgar</option>
-                <option value="Ernestina">Ernestina</option>
-            </select>
-
-            <label for="passwordInput">Contraseña:</label>
-            <input type="password" id="passwordInput" placeholder="Ingrese su clave">
-
-            <button id="loginBtn">Ingresar</button>
+    <header class="navbar">
+        <div class="logo-title">
+            <h1>Control de Reservas JOBCARD</h1>
+        </div>
+        <div class="user-status-area">
+            <span id="userBadge" class="badge">Invitado (Solo Lectura)</span>
+            <button id="btnOpenLogin" class="btn-login">Iniciar Sesión</button>
         </div>
     </header>
 
-    <main>
+    <main class="container">
+        <!-- Panel de Búsqueda y Filtrado -->
+        <section class="toolbar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por cliente, modelo, técnico, TR4...">
+            </div>
+        </section>
+
+        <!-- Tabla de Datos -->
         <div class="table-container">
             <table>
                 <thead>
@@ -45,11 +45,33 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Los datos se cargarán dinámicamente desde app.js -->
+                    <!-- Registros dinámicos -->
                 </tbody>
             </table>
         </div>
     </main>
+
+    <!-- Modal de Inicio de Sesión -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-card">
+            <h2>Acceso de Usuario</h2>
+            <div class="form-group">
+                <label for="usuarioSelect">Usuario:</label>
+                <select id="usuarioSelect">
+                    <option value="Edgar">Edgar</option>
+                    <option value="Ernestina">Ernestina</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="passwordInput">Contraseña:</label>
+                <input type="password" id="passwordInput" placeholder="Ingrese su contraseña">
+            </div>
+            <div class="modal-actions">
+                <button id="btnCloseLogin" class="btn-secondary">Cancelar</button>
+                <button id="loginBtn" class="btn-primary">Ingresar</button>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
