@@ -2,90 +2,158 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
     background-color: #f4f6f9;
+    color: #333333;
 }
 
-.navbar {
+/* Encabezado Principal */
+.header-bar {
     background-color: #002060;
-    color: white;
-    padding: 8px 16px;
+    color: #ffffff;
+    padding: 10px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-.logo-title h1 {
-    font-size: 16px;
-    font-weight: bold;
+.logo-container h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
-.inline-login {
+.login-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+}
+
+.login-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 13px;
 }
 
-.inline-login select, 
-.inline-login input {
-    padding: 4px 8px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
+.login-field select,
+.login-field input {
+    padding: 5px 10px;
+    border: 1px solid #001040;
+    border-radius: 4px;
     font-size: 13px;
+    outline: none;
 }
 
-.inline-login button {
+.login-field select {
     background-color: #ffffff;
     color: #002060;
-    border: 1px solid #ffffff;
-    padding: 4px 12px;
-    border-radius: 3px;
-    font-weight: bold;
+    font-weight: 600;
+}
+
+.btn-ingresar {
+    background-color: #0056b3;
+    color: #ffffff;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-.inline-login button:hover {
-    background-color: #e2e8f0;
+.btn-ingresar:hover {
+    background-color: #003d80;
 }
 
-.container {
-    padding: 10px;
+/* Contenedor Principal */
+.main-content {
+    padding: 16px 24px;
 }
 
-.table-container {
+/* Barra de Herramientas y Búsqueda */
+.toolbar {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #888888;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 7px 12px 7px 32px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-container input:focus {
+    border-color: #002060;
+}
+
+/* Estilos de Tabla */
+.table-wrapper {
+    background: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     overflow-x: auto;
-    background: white;
 }
 
-table {
+.jobcard-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 12px;
+    text-align: left;
 }
 
-th {
+.jobcard-table th {
     background-color: #002060;
-    color: white;
-    text-align: left;
-    padding: 8px;
-    border: 1px solid #001040;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 10px 12px;
+    border: 1px solid #001540;
     white-space: nowrap;
 }
 
-td {
-    padding: 6px 8px;
-    border: 1px solid #cbd5e1;
+.jobcard-table td {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    white-space: nowrap;
 }
 
+.jobcard-table tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Estilos para Celdas Editables */
 td[contenteditable="true"] {
-    background-color: #ffffff;
+    background-color: #ffffff !important;
+    border: 1px solid #0056b3 !important;
     outline: none;
 }
 
 td[contenteditable="false"] {
     background-color: #f8fafc;
+    color: #444444;
 }
