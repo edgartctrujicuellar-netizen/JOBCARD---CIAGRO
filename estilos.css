@@ -154,4 +154,76 @@ tr:nth-child(even) {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
+
+}
+
+
+
+/* Botones de filtro estilo Excel en los encabezados */
+th {
+    position: relative;
+    padding-right: 25px !important;
+}
+
+.th-filter-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.th-filter-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Menú desplegable de valores estilo Excel */
+.excel-filter-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    z-index: 1000;
+    width: 200px;
+    max-height: 250px;
+    overflow-y: auto;
+    display: none;
+    padding: 8px;
+    border-radius: 4px;
+    color: #333333;
+    font-weight: normal;
+    text-align: left;
+}
+
+.excel-filter-menu label {
+    display: block;
+    padding: 3px 0;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.excel-filter-menu input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-actions button {
+    font-size: 11px;
+    padding: 2px 6px;
+    cursor: pointer;
 }
