@@ -5,14 +5,14 @@ from psycopg2.extras import RealDictCursor
 import hashlib
 import os
 
-app = Flask(__name__, static_folder='.')
+app = Flask(__name__, static_folder='.', static_url_path='')
 
-# Cadena de conexión de tu proyecto en Neon.tech
 NEON_DB_URL = "postgresql://neondb_owner:npg_yYSpJ4cMtL2H@ep-damp-cake-ac9h7dej-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
+# Hashes SHA-256 para Edgar (69303242) y Ernestina (12345678)
 USUARIOS_HASH = {
-    "Edgar": "3015a9b753f2c52cb3e42994821a81e9f0d046f14b62db48bfef278631b0e352",      # Admin
-    "Ernestina": "9f77f0a6d36e2f41d3fa54e568469e88698184e93d186c2e36d400199464618e" # Restringida
+    "Edgar": "c7aa78997a3cf1d0f50b298499ee84e03f0b2f7a4fa282d8d8ee66d3a0efdbbf",
+    "Ernestina": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f"
 }
 
 def get_db_connection():
@@ -21,16 +21,12 @@ def get_db_connection():
 def verificar_credenciales(usuario, password):
     if not usuario or not password:
         return False
-    pass_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    pass_hash = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
     return USUARIOS_HASH.get(usuario) == pass_hash
 
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
-
-@app.route('/<path:path>')
-def send_static(path):
-    return send_from_directory('.', path)
 
 @app.route('/api/reservas', methods=['GET'])
 def get_reservas():
@@ -57,7 +53,6 @@ def guardar_celda():
     if not verificar_credenciales(user, pas):
         return jsonify({"status": "error", "message": "Acceso denegado: Credenciales inválidas"}), 403
 
-    # Permisos por rol: Ernestina solo edita 'tr4' y 'estado'
     if user == "Ernestina" and campo not in ["tr4", "estado"]:
         return jsonify({"status": "error", "message": "Ernestina solo tiene permitido editar TR4 y Estado"}), 403
 
