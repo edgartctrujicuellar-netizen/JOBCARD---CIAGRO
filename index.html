@@ -8,28 +8,43 @@
 </head>
 <body>
 
-    <header class="navbar">
-        <div class="logo-title">
+    <!-- Encabezado Principal Corporativo -->
+    <header class="header-bar">
+        <div class="logo-container">
             <h1>Control de Reservas JOBCARD</h1>
         </div>
         
-        <div class="inline-login">
-            <label for="usuarioSelect">Usuario:</label>
-            <select id="usuarioSelect">
-                <option value="Edgar">Edgar</option>
-                <option value="Ernestina">Ernestina</option>
-            </select>
+        <div class="login-container">
+            <div class="login-field">
+                <label for="usuarioSelect">Usuario:</label>
+                <select id="usuarioSelect">
+                    <option value="Edgar">Edgar</option>
+                    <option value="Ernestina">Ernestina</option>
+                </select>
+            </div>
 
-            <label for="passwordInput">Contraseña:</label>
-            <input type="password" id="passwordInput" placeholder="Ingrese su clave">
+            <div class="login-field">
+                <label for="passwordInput">Contraseña:</label>
+                <input type="password" id="passwordInput" placeholder="Ingrese su clave">
+            </div>
 
-            <button id="loginBtn">Ingresar</button>
+            <button id="loginBtn" class="btn-ingresar">Ingresar</button>
         </div>
     </header>
 
-    <main class="container">
-        <div class="table-container">
-            <table>
+    <!-- Área de Contenido Principal -->
+    <main class="main-content">
+        <!-- Barra Superior de Herramientas / Búsqueda -->
+        <div class="toolbar">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Buscar por cliente, modelo, técnico, TR4...">
+            </div>
+        </div>
+
+        <!-- Tabla Estilizada de Datos -->
+        <div class="table-wrapper">
+            <table class="jobcard-table">
                 <thead>
                     <tr>
                         <th>ID Reserva</th>
@@ -46,7 +61,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Registros dinámicos -->
+                    <!-- Registros generados mediante JavaScript -->
                 </tbody>
             </table>
         </div>
