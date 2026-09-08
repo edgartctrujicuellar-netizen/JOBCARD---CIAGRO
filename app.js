@@ -4,6 +4,7 @@ let activeFilters = {};
 let currentUser = null;
 let currentPass = null;
 
+// Matriz de columnas sin la columna 'tecnico'
 const COL_MAP = [
     { key: 'id_reserva', label: 'ID RESERVA' },
     { key: 'tr4', label: 'TR4' },
@@ -12,7 +13,6 @@ const COL_MAP = [
     { key: 'cliente', label: 'CLIENTE' },
     { key: 'fecha_creacion', label: 'FECHA CREACIÓN' },
     { key: 'creado_por', label: 'CREADO POR' },
-    { key: 'tecnico', label: 'TÉCNICO' },
     { key: 'estado', label: 'ESTADO' },
     { key: 'estado_unidad', label: 'ESTADO UNIDAD' },
     { key: 'actividades', label: 'ACTIVIDADES' }
@@ -30,7 +30,6 @@ async function cargarDatos() {
         rawData = await res.json();
         filteredData = [...rawData];
         
-        poblarSelectsSuperiores();
         construirEncabezadosConFiltros();
         renderTabla(filteredData);
     } catch (err) {
@@ -38,34 +37,223 @@ async function cargarDatos() {
     }
 }
 
-// Puebla las listas desplegables de la parte superior con los datos reales de la BD
-function poblarSelectsSuperiores() {
-    const selects = document.querySelectorAll('.filters select');
-    if (selects.length === 0) return;
+function construirEncabezadosConFiltros() {
+    const theadRow = document.querySelector('#dataTable thead tr');
+    if (!theadRow) return;
+    theadRow.innerHTML = '';
 
-    // Supuesto de asignación por orden de selects en HTML: 
-    // Select 0 -> Estado, Select 1 -> Estado Unidad, Select 2 -> Técnico
-    const mapping = [
-        { select: selects[0], key: 'estado', defaultLabel: 'Todos los Estados' },
-        { select: selects[1], key: 'estado_unidad', defaultLabel: 'Todos los Estados de Unidad' },
-        { select: selects[2], key: 'tecnico', defaultLabel: 'Todos los Técnicos' }
-    ];
+    COL_MAP.forEach(col => {
+        const th = document.createElement('th');
+        th.textContent = col.label;
 
-    mapping.forEach(item => {
-        if (!item.select) return;
+        const btnFilter = document.createElement('button');
+        btnFilter.className = 'th-filter-btn';
+        btnFilter.innerHTML = '▼';
         
-        const valoresUnicos = [...new Set(rawData.map(row => row[item.key] ? String(row[item.key]).trim() : '').filter(Boolean))].sort();
-        
-        item.select.innerHTML = `<option value="">${item.defaultLabel}</option>`;
-        valoresUnicos.forEach(val => {
-            const opt = document.createElement('option');
-            opt.value = val;
-            opt.textContent = val;
-            item.select.appendChild(opt);
+        const menu = document.createElement('div');
+        menu.className = 'excel-filter-menu';
+
+        btnFilter.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.excel-filter-menu').forEach(m => {
+                if (m !== menu) m.style.display = 'none';
+            });
+            
+            poblarOpcionesFiltro(col.key, menu);
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         });
 
-        item.select.onchange = () => aplicarFiltros();
+        th.appendChild(btnFilter);
+        th.appendChild(menu);
+        theadRow.appendChild(th);
     });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.excel-filter-menu').forEach(m => m.style.display = 'none');
+    });
+}
+
+function poblarOpcionesFiltro(key, menuContainer) {
+    menuContainer.innerHTML = '';
+
+    const valoresUnicos = [...new Set(rawData.map(item => item[key] ? String(item[key]).trim() : '(Vacíos)'))].sort();
+
+    const inputSearch = document.createElement('input');
+    inputSearch.type = 'text';
+    inputSearch.placeholder = 'Buscar...';
+    inputSearch.className = 'excel-filter-search';
+    inputSearch.onclick = (e) => e.stopPropagation();
+    menuContainer.appendChild(inputSearch);
+
+    const listContainer = document.createElement('div');
+    listContainer.className = 'excel-filter-list';
+
+    const labelAll = document.createElement('label');
+    labelAll.className = 'select-all-label';
+    labelAll.onclick = (e) => e.stopPropagation();
+
+    const chkAll = document.createElement('input');
+    chkAll.type = 'checkbox';
+    
+    const estaFiltrado = activeFilters[key] && activeFilters[key].length > 0;
+    chkAll.checked = !estaFiltrado || activeFilters[key].length === valoresUnicos.length;
+
+    labelAll.appendChild(chkAll);
+    labelAll.appendChild(document.createTextNode(' (Seleccionar Todo)'));
+    listContainer.appendChild(labelAll);
+
+    const checkBoxes = [];
+    valoresUnicos.forEach(val => {
+        const label = document.createElement('label');
+        label.onclick = (e) => e.stopPropagation();
+
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.value = val;
+
+        if (!estaFiltrado || (activeFilters[key] && activeFilters[key].includes(val))) {
+            chk.checked = true;
+        }
+
+        chk.addEventListener('change', () => {
+            asignarFiltroPorCheckboxes(key, valoresUnicos, checkBoxes, chkAll);
+        });
+
+        checkBoxes.push({ chk, val, label });
+        label.appendChild(chk);
+        label.appendChild(document.createTextNode(` ${val}`));
+        listContainer.appendChild(label);
+    });
+
+    chkAll.addEventListener('change', () => {
+        checkBoxes.forEach(item => {
+            if (item.label.style.display !== 'none') {
+                item.chk.checked = chkAll.checked;
+            }
+        });
+        asignarFiltroPorCheckboxes(key, valoresUnicos, checkBoxes, chkAll);
+    });
+
+    inputSearch.addEventListener('input', () => {
+        const term = inputSearch.value.toLowerCase();
+        checkBoxes.forEach(item => {
+            if (item.val.toLowerCase().includes(term)) {
+                item.label.style.display = 'block';
+            } else {
+                item.label.style.display = 'none';
+            }
+        });
+    });
+
+    menuContainer.appendChild(listContainer);
+}
+
+function asignarFiltroPorCheckboxes(key, todosLosValores, checkBoxes, chkAll) {
+    const marcados = checkBoxes.filter(i => i.chk.checked).map(i => i.val);
+    
+    if (marcados.length === todosLosValores.length || marcados.length === 0) {
+        delete activeFilters[key];
+        chkAll.checked = true;
+    } else {
+        activeFilters[key] = marcados;
+        chkAll.checked = false;
+    }
+    aplicarFiltros();
+}
+
+function inicializarBuscadoresYSelects() {
+    const inputBuscar = document.querySelector('#searchInput');
+    if (inputBuscar) inputBuscar.addEventListener('input', () => aplicarFiltros());
+
+    const filterEstado = document.querySelector('#filterEstado');
+    if (filterEstado) filterEstado.addEventListener('change', () => aplicarFiltros());
+
+    const filterAnio = document.querySelector('#filterAnio');
+    if (filterAnio) filterAnio.addEventListener('change', () => aplicarFiltros());
+
+    const filterMes = document.querySelector('#filterMes');
+    if (filterMes) filterMes.addEventListener('change', () => aplicarFiltros());
+
+    const filterSemana = document.querySelector('#filterSemana');
+    if (filterSemana) filterSemana.addEventListener('change', () => aplicarFiltros());
+}
+
+// Función auxiliar para obtener la semana ISO a partir de una fecha YYYY-MM-DD
+function getISOWeek(dateString) {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
+    const target = new Date(date.valueOf());
+    const dayNr = (date.getDay() + 6) % 7;
+    target.setDate(target.getDate() - dayNr + 3);
+    const firstThursday = target.valueOf();
+    target.setMonth(0, 1);
+    if (target.getDay() !== 4) {
+        Aquí tienes el código completo y corregido de tu archivo **`app.js`**, integrando exactamente todas las funcionalidades solicitadas:
+
+1. **Eliminación total del campo/columna `tecnico`** de `COL_MAP`.
+2. **Resaltado en color rojo claro (`tr4-vacio`)** de las filas cuya celda TR4 está vacía o sin datos.
+3. **Soporte para los filtros de fecha (Año, Mes, Semana)** y eliminación del filtro redundante de estado de unidad.
+4. **Filtro exclusivo para el Estado de la Tarjeta**.
+
+Reemplaza todo el contenido de tu archivo **`app.js`** por este código:
+
+```javascript
+let rawData = [];
+let filteredData = [];
+let activeFilters = {};
+let currentUser = null;
+let currentPass = null;
+
+// COL_MAP actualizado: Se elimina por completo la entrada de técnico
+const COL_MAP = [
+    { key: 'id_reserva', label: 'ID RESERVA' },
+    { key: 'tr4', label: 'TR4' },
+    { key: 'pin_sn', label: 'PIN / SN' },
+    { key: 'modelo', label: 'MODELO' },
+    { key: 'cliente', label: 'CLIENTE' },
+    { key: 'fecha_creacion', label: 'FECHA CREACIÓN' },
+    { key: 'creado_por', label: 'CREADO POR' },
+    { key: 'estado', label: 'ESTADO' },
+    { key: 'estado_unidad', label: 'ESTADO UNIDAD' },
+    { key: 'actividades', label: 'ACTIVIDADES' }
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+    cargarDatos();
+    inicializarLogin();
+    inicializarBuscadoresYSelects();
+});
+
+async function cargarDatos() {
+    try {
+        const res = await fetch('/api/reservas');
+        rawData = await res.json();
+        filteredData = [...rawData];
+        
+        poblarSelectEstado();
+        construirEncabezadosConFiltros();
+        renderTabla(filteredData);
+    } catch (err) {
+        console.error("Error al cargar datos desde Neon:", err);
+    }
+}
+
+// Puebla la lista desplegable de la parte superior únicamente con los estados de la tarjeta
+function poblarSelectEstado() {
+    const selectEstado = document.getElementById('filterEstado');
+    if (!selectEstado) return;
+
+    const estadosUnicos = [...new Set(rawData.map(row => row.estado ? String(row.estado).trim() : '').filter(Boolean))].sort();
+    
+    selectEstado.innerHTML = `<option value="">Todos los Estados</option>`;
+    estadosUnicos.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        selectEstado.appendChild(opt);
+    });
+
+    selectEstado.onchange = () => aplicarFiltros();
 }
 
 function construirEncabezadosConFiltros() {
@@ -194,28 +382,53 @@ function asignarFiltroPorCheckboxes(key, todosLosValores, checkBoxes, chkAll) {
 }
 
 function inicializarBuscadoresYSelects() {
-    const inputBuscar = document.querySelector('#searchInput') || document.querySelector('input[placeholder="Buscar..."]');
+    const inputBuscar = document.querySelector('#searchInput');
     if (inputBuscar) {
         inputBuscar.addEventListener('input', () => aplicarFiltros());
     }
+
+    const filterAnio = document.getElementById('filterAnio');
+    const filterMes = document.getElementById('filterMes');
+    const filterSemana = document.getElementById('filterSemana');
+
+    if (filterAnio) filterAnio.addEventListener('change', () => aplicarFiltros());
+    if (filterMes) filterMes.addEventListener('change', () => aplicarFiltros());
+    if (filterSemana) filterSemana.addEventListener('change', () => aplicarFiltros());
 }
 
 function aplicarFiltros() {
-    const inputBuscar = document.querySelector('#searchInput') || document.querySelector('input[placeholder="Buscar..."]');
+    const inputBuscar = document.querySelector('#searchInput');
     const busquedaGlobal = inputBuscar ? inputBuscar.value.toLowerCase().trim() : '';
 
-    const selects = document.querySelectorAll('.filters select');
-    const valEstado = selects[0] ? selects[0].value : '';
-    const valEstadoUnidad = selects[1] ? selects[1].value : '';
-    const valTecnico = selects[2] ? selects[2].value : '';
+    const selectEstado = document.getElementById('filterEstado');
+    const valEstado = selectEstado ? selectEstado.value.trim() : '';
+
+    const valAnio = document.getElementById('filterAnio') ? document.getElementById('filterAnio').value : '';
+    const valMes = document.getElementById('filterMes') ? document.getElementById('filterMes').value : '';
+    const valSemana = document.getElementById('filterSemana') ? document.getElementById('filterSemana').value : '';
 
     filteredData = rawData.filter(row => {
-        // 1. Filtros Selects Superiores
+        // 1. Filtro por Estado de Tarjeta
         if (valEstado && (row.estado || '').trim() !== valEstado) return false;
-        if (valEstadoUnidad && (row.estado_unidad || '').trim() !== valEstadoUnidad) return false;
-        if (valTecnico && (row.tecnico || '').trim() !== valTecnico) return false;
 
-        // 2. Filtros por columna estilo Excel
+        // 2. Filtros por Fechas (Año, Mes, Semana)
+        if (row.fecha_creacion) {
+            const fechaStr = String(row.fecha_creacion);
+            
+            if (valAnio && !fechaStr.includes(valAnio)) return false;
+            if (valMes && !fechaStr.includes(`-${valMes}-`) && !fechaStr.includes(`/${valMes}/`)) return false;
+            
+            if (valSemana) {
+                const fechaObj = new Date(row.fecha_creacion);
+                if (!isNaN(fechaObj.getTime())) {
+                    const numeroSemana = obtenerNumeroSemana(fechaObj);
+                    const semanaSeleccionada = parseInt(valSemana.split('-W')[1], 10);
+                    if (numeroSemana !== semanaSeleccionada) return false;
+                }
+            }
+        }
+
+        // 3. Filtros estilo Excel
         for (let key in activeFilters) {
             const rowVal = row[key] ? String(row[key]).trim() : '(Vacíos)';
             if (activeFilters[key].length > 0 && !activeFilters[key].includes(rowVal)) {
@@ -223,7 +436,7 @@ function aplicarFiltros() {
             }
         }
 
-        // 3. Buscador Global (busca coincidencias en cualquier columna)
+        // 4. Buscador Global
         if (busquedaGlobal) {
             const coincideEnAlgunaColumna = COL_MAP.some(col => {
                 const val = row[col.key] ? String(row[col.key]).toLowerCase() : '';
@@ -238,6 +451,14 @@ function aplicarFiltros() {
     renderTabla(filteredData);
 }
 
+// Cálculo auxiliar para la semana del año
+function obtenerNumeroSemana(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const startOfYear = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - startOfYear) / 86400000) + 1) / 7);
+}
+
 function renderTabla(data) {
     const tbody = document.getElementById('tableBody');
     if (!tbody) return;
@@ -246,6 +467,12 @@ function renderTabla(data) {
     data.forEach((row) => {
         const tr = document.createElement('tr');
         tr.dataset.id = row.id;
+
+        // Resaltar toda la fila en rojo si TR4 está vacío o no existe
+        const tr4Val = row.tr4 ? String(row.tr4).trim() : '';
+        if (!tr4Val || tr4Val === '' || tr4Val.toUpperCase() === 'SIN TR4') {
+            tr.classList.add('tr4-vacio');
+        }
 
         COL_MAP.forEach(col => {
             const key = col.key;
