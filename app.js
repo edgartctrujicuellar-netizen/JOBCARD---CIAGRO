@@ -1,4 +1,3 @@
-javascript
 let rawData = [];
 let filteredData = [];
 let activeFilters = {};
